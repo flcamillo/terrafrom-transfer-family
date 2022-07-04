@@ -1,0 +1,5 @@
+*.exe
+*.zip
+*.hcl
+*.terraformstate
+*.backup
