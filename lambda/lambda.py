@@ -38,7 +38,7 @@ def user_policy(user):
                     "s3:GetObjectACL",
                     "s3:PutObjectACL"
                 ],
-                "Resource": "arn:aws:s3:::${transfer:HomeDirectory}*"
+                "Resource": "arn:aws:s3:::${transfer:HomeDirectory}/*"
             }
         ]
     }
@@ -49,6 +49,9 @@ def user_policy(user):
 # realiza a autenticação do usuário
 def auth_user(user, password):
     if (user == "fabio" and password == "teste"):
+        # a policy do usuário precisa ser ajustada caso tenha / no final do diretório:
+        # com barra o recurso ficaria: arn:aws:s3:::${transfer:HomeDirectory}*
+        # sem barra o recurso ficaria: arn:aws:s3:::${transfer:HomeDirectory}/*
         auth = {
             "Role": os.environ['S3_ROLE'],
             "Policy": user_policy(user),
