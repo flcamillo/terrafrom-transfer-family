@@ -13,7 +13,7 @@ variable "lambda_auth_name" {
 variable "s3_bucket" {
   type        = string
   description = "Nome do bucket usado pelo transfer family"
-  default     = "transfer-family"
+  default     = "flc-transfer-family"
 }
 
 variable "vpc_id" {

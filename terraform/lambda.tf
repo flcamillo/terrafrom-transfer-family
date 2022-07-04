@@ -5,8 +5,7 @@ data "aws_iam_policy_document" "lambda-auth-trusted-policy-doc" {
     principals {
       type        = "Service"
       identifiers = [
-        "lambda.amazonaws.com",
-        "transfer.amazonaws.com"
+        "lambda.amazonaws.com"
       ]
     }
     actions = ["sts:AssumeRole"]
@@ -107,7 +106,8 @@ resource "aws_lambda_function" "lambda-auth" {
   source_code_hash = data.archive_file.lambda_source.output_base64sha256
   environment {
     variables = {
-      S3_BUCKET = var.s3_bucket
+      S3_BUCKET = aws_s3_bucket.transfer-family-root.bucket
+      S3_ROLE = aws_iam_role.role-bucket-access-trusted.arn
     }
   }  
 }

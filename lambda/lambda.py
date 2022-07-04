@@ -6,40 +6,41 @@ import json
 def user_policy(user):
     # define a policy em json
     policy = {
-        "Policy": {
-            "Version": "2012-10-17",
-            "Statement":
-            [
-                {
-                    "Resource": "arn:aws:s3:::*",
-                    "Action": ["s3:PutObject",
-                               "s3:GetObject",
-                               "s3:DeleteObjectVersion",
-                               "s3:DeleteObject",
-                               "s3:GetObjectVersion",
-                               "s3:GetObjectACL",
-                               "s3:PutObjectACL"],
-                    "Effect": "Allow",
-                    "Sid": "HomeDirObjectAccess"
-                },
-                {
-                    "Condition":
-                    {
-                        "StringLike":
-                        {
-                            "s3:prefix":
-                            [
-                                user + "/*",
-                                user + "/"]
-                        }
-                    },
-                    "Resource": "arn:aws:s3:::" + os.environ['S3_BUCKET'],
-                    "Action": "s3:ListBucket",
-                    "Effect": "Allow",
-                    "Sid": "ListHomeDir"
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "AllowListingOfUserFolder",
+                "Action": [
+                    "s3:ListBucket"
+                ],
+                "Effect": "Allow",
+                "Resource": [
+                    "arn:aws:s3:::${transfer:HomeBucket}"
+                ],
+                "Condition": {
+                    "StringLike": {
+                        "s3:prefix": [
+                            "${transfer:HomeFolder}/*",
+                            "${transfer:HomeFolder}"
+                        ]
+                    }
                 }
-            ]
-        }
+            },
+            {
+                "Sid": "HomeDirObjectAccess",
+                "Effect": "Allow",
+                "Action": [
+                    "s3:PutObject",
+                    "s3:GetObject",
+                    "s3:DeleteObject",
+                    "s3:DeleteObjectVersion",
+                    "s3:GetObjectVersion",
+                    "s3:GetObjectACL",
+                    "s3:PutObjectACL"
+                ],
+                "Resource": "arn:aws:s3:::${transfer:HomeDirectory}*"
+            }
+        ]
     }
     # retorna o json em formato string
     return json.dumps(policy)
@@ -51,7 +52,7 @@ def auth_user(user, password):
         auth = {
             "Role": os.environ['S3_ROLE'],
             "Policy": user_policy(user),
-            "HomeDirectory": "/" + user,
+            "HomeDirectory": "/{0}/{1}".format(os.environ['S3_BUCKET'], user),
         }
         return auth
     return None
@@ -60,4 +61,6 @@ def auth_user(user, password):
 # função principal da lambda
 def lambda_handler(event, context):
     print(event)
+    print(os.environ['S3_ROLE'])
+    print(os.environ['S3_BUCKET'])
     return auth_user(event["username"], event["password"])
