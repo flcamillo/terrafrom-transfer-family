@@ -3,3 +3,4 @@
 *.hcl
 *.terraformstate
 *.backup
+*.tfstate
