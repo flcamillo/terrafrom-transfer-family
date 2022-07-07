@@ -3,7 +3,7 @@ data "aws_iam_policy_document" "lambda-auth-trusted-policy-doc" {
   statement {
     effect = "Allow"
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = [
         "lambda.amazonaws.com"
       ]
@@ -27,6 +27,13 @@ data "aws_iam_policy_document" "lambda-auth-policy-doc" {
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents"
+    ]
+  }
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "secretsmanager:GetSecretValue"
     ]
   }
 }
@@ -107,7 +114,7 @@ resource "aws_lambda_function" "lambda-auth" {
   environment {
     variables = {
       S3_BUCKET = aws_s3_bucket.transfer-family-root.bucket
-      S3_ROLE = aws_iam_role.role-bucket-access-trusted.arn
+      S3_ROLE   = aws_iam_role.role-bucket-access-trusted.arn
     }
-  }  
+  }
 }
